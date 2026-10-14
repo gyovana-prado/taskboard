@@ -39,6 +39,10 @@ Edição manual, escrevendo nos mesmos arquivos que o Claude Code lê a cada `Ta
 
 O Claude só percebe a mudança quando consultar a lista de novo (ele faz isso antes de começar cada task). Quando todas as tasks de uma sessão ficam concluídas, o próprio Claude Code apaga a lista e a sessão some do painel. O painel de terminal continua só leitura.
 
+Abrir no login: `app/autostart.sh on` instala um LaunchAgent (`dev.gyo.taskboard`), `off` remove, `status` mostra. O app garante instância única, então abrir de novo só traz a janela existente.
+
+Ícone: `app/build-icon.sh` renderiza `tools/icon.html` com o próprio Electron e monta `build/icon.icns` com `iconutil`.
+
 O `.app` sai com assinatura ad-hoc (`codesign --sign -`), suficiente pra rodar neste Mac. Pra distribuir em outro Mac sem aviso do Gatekeeper precisaria de Developer ID e notarização, que exigem conta Apple Developer. Rebuild com `app/install.sh`; pra desenvolver, `cd app && npm start`.
 
 **Terminal** (`taskboard`):
@@ -51,7 +55,8 @@ taskboard --once     # renderiza uma vez e sai
 
 Instalado com `uv tool install --editable ~/dev/taskboard`. Pra desenvolver: `uv sync` e `uv run --no-env-file taskboard`.
 
-## Depois (de propósito fora da v1)
+## Depois
 
 - Tasks por pasta em vez de por sessão, sobrevivendo ao fim da sessão.
 - Agrupar por projeto.
+- Edição no painel de terminal (hoje só leitura).

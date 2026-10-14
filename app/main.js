@@ -100,6 +100,13 @@ ipcMain.on('taskboard:task-add', (_e, { sessionId, subject }) => {
 })
 ipcMain.on('taskboard:quit', () => app.quit())
 
+// uma instância só: o LaunchAgent e o `open` podem tentar abrir de novo
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+} else {
+  app.on('second-instance', () => { if (win && !win.isDestroyed()) win.show() })
+}
+
 app.whenReady().then(() => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide()
   Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: 'Taskboard', submenu: [{ role: 'quit' }] }]))
