@@ -8,7 +8,7 @@ const btnMode = document.getElementById('btn-mode')
 const btnClosed = document.getElementById('btn-closed')
 const btnQuit = document.getElementById('btn-quit')
 
-let current = { sessions: [], mode: 'expanded', showClosed: false }
+let current = { sessions: [], mode: 'expanded', showClosed: false, collapsed: [], maxHeight: 520 }
 
 function age(iso) {
   const t = Date.parse(iso || '')
@@ -51,9 +51,14 @@ function render() {
     body.append(el('div', 'empty', 'Nenhuma sessão com tasks.'))
     return schedule()
   }
+  const collapsed = new Set(current.collapsed || [])
   for (const s of sessions) {
-    const box = el('section', 'session')
+    const isCollapsed = collapsed.has(s.session_id)
+    const box = el('section', `session${isCollapsed ? ' collapsed' : ''}`)
     const head = el('div', 'session-head')
+    head.title = isCollapsed ? 'Expandir sessão' : 'Recolher sessão'
+    head.addEventListener('click', () => toggleSession(s.session_id))
+    head.append(el('span', 'chev', isCollapsed ? '▸' : '▾'))
     head.append(el('span', 'project', s.project || '?'))
     if (s.branch) head.append(el('span', 'branch', `(${s.branch})`))
     head.append(el('span', 'age', age(s.updated_at)))
@@ -74,10 +79,22 @@ function render() {
   schedule()
 }
 
+function toggleSession(id) {
+  const set = new Set(current.collapsed || [])
+  if (set.has(id)) set.delete(id)
+  else set.add(id)
+  window.taskboard.set({ collapsed: [...set] })
+}
+
 let raf = 0
 function schedule() {
   cancelAnimationFrame(raf)
-  raf = requestAnimationFrame(() => window.taskboard.resize(card.offsetHeight + 2))
+  raf = requestAnimationFrame(() => {
+    // corpo rola a partir da altura máxima; a janela cresce até lá e para
+    const header = document.getElementById('header').offsetHeight
+    body.style.maxHeight = `${current.maxHeight - header - 12}px`
+    window.taskboard.resize(card.offsetHeight + 2)
+  })
 }
 
 btnMode.addEventListener('click', () => {

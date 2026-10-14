@@ -24,7 +24,9 @@ A env `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` (também na settings) é o que liga as T
 
 Duas formas de ver, lendo os mesmos JSONs:
 
-**App flutuante** (`/Applications/Taskboard.app`): janela sem moldura, sempre por cima, visível em todos os desktops. Arrasta pelo cabeçalho. `▾` recolhe pra uma linha só com o resumo (duplo clique no cabeçalho faz o mesmo), `◷` mostra também sessões encerradas, `×` fecha. Posição e modo ficam salvos. Rebuild com `app/install.sh`; pra desenvolver, `cd app && npm start`.
+**App flutuante** (`/Applications/Taskboard.app`): janela sem moldura, sempre por cima, visível em todos os desktops. Arrasta pelo cabeçalho. `▾` recolhe pra uma linha só com o resumo (duplo clique no cabeçalho faz o mesmo), `◷` mostra também sessões encerradas, `×` fecha. Clique no nome de uma sessão recolhe só ela (fica o contador e a task em andamento). A janela cresce até 520px e a partir daí o corpo rola. Posição, modo e sessões recolhidas ficam salvos.
+
+O `.app` sai com assinatura ad-hoc (`codesign --sign -`), suficiente pra rodar neste Mac. Pra distribuir em outro Mac sem aviso do Gatekeeper precisaria de Developer ID e notarização, que exigem conta Apple Developer. Rebuild com `app/install.sh`; pra desenvolver, `cd app && npm start`.
 
 **Terminal** (`taskboard`):
 

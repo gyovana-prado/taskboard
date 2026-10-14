@@ -9,11 +9,12 @@ const SESSIONS_DIR = process.env.TASKBOARD_DIR
   ? path.join(process.env.TASKBOARD_DIR, 'sessions')
   : path.join(os.homedir(), '.claude', 'taskboard', 'sessions')
 const WIDTH = 360
+const MAX_HEIGHT = 520
 const POLL_MS = 1000
 
 let win = null
 let lastPayload = ''
-const state = { x: null, y: null, mode: 'expanded', showClosed: false }
+const state = { x: null, y: null, mode: 'expanded', showClosed: false, collapsed: [] }
 const stateFile = () => path.join(app.getPath('userData'), 'state.json')
 
 function loadState() {
@@ -39,7 +40,13 @@ function readSessions() {
 
 function tick() {
   if (!win || win.isDestroyed()) return
-  const payload = JSON.stringify({ sessions: readSessions(), mode: state.mode, showClosed: state.showClosed })
+  const payload = JSON.stringify({
+    sessions: readSessions(),
+    mode: state.mode,
+    showClosed: state.showClosed,
+    collapsed: state.collapsed,
+    maxHeight: MAX_HEIGHT,
+  })
   if (payload === lastPayload) return
   lastPayload = payload
   win.webContents.send('taskboard:update', JSON.parse(payload))
@@ -83,7 +90,7 @@ function createWindow() {
 
 ipcMain.on('taskboard:resize', (_e, height) => {
   if (!win || win.isDestroyed()) return
-  const maxH = screen.getDisplayMatching(win.getBounds()).workArea.height - 32
+  const maxH = Math.min(MAX_HEIGHT, screen.getDisplayMatching(win.getBounds()).workArea.height - 32)
   const h = Math.max(44, Math.min(Math.round(height), maxH))
   const [w] = win.getSize()
   win.setSize(w, h, false)
