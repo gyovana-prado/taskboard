@@ -1,0 +1,16 @@
+[project]
+name = "taskboard"
+version = "0.1.0"
+description = "Painel de terminal que mostra as tasks das sessões abertas do Claude Code"
+requires-python = ">=3.12"
+dependencies = ["rich>=13.7"]
+
+[project.scripts]
+taskboard = "taskboard.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/taskboard"]
