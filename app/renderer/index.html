@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Taskboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="card" class="card">
+    <header id="header" class="header">
+      <span class="dot" id="dot"></span>
+      <span class="title">Taskboard</span>
+      <span class="summary" id="summary"></span>
+      <span class="spacer"></span>
+      <button id="btn-closed" class="btn" title="Mostrar sessões encerradas">◷</button>
+      <button id="btn-mode" class="btn" title="Expandir / recolher">▾</button>
+      <button id="btn-quit" class="btn" title="Fechar">×</button>
+    </header>
+    <main id="body" class="body"></main>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>
