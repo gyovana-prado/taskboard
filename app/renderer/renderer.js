@@ -29,7 +29,7 @@ function el(tag, cls, text) {
 
 function visibleSessions() {
   return current.sessions
-    .filter((s) => (s.tasks || []).length > 0 && (current.showClosed || s.status === 'open'))
+    .filter((s) => (s.tasks || []).length > 0)
     .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))
 }
 
@@ -59,21 +59,24 @@ function render() {
     head.title = isCollapsed ? 'Expandir sessão' : 'Recolher sessão'
     head.addEventListener('click', () => toggleSession(s.session_id))
     head.append(el('span', 'chev', isCollapsed ? '▸' : '▾'))
+    if (s.busy) head.append(el('span', 'busy', '●'))
     head.append(el('span', 'project', s.project || '?'))
     if (s.branch) head.append(el('span', 'branch', `(${s.branch})`))
+    if (s.kind === 'bg') head.append(el('span', 'kind', 'bg'))
+    if (s.name) head.append(el('span', 'name', s.name))
     head.append(el('span', 'age', age(s.updated_at)))
     if (s.status === 'closed') head.append(el('span', 'closed', 'encerrada'))
     head.append(el('span', 'spacer'))
     const d = s.tasks.filter((t) => t.status === 'completed').length
     head.append(el('span', 'count', `${d}/${s.tasks.length}`))
     box.append(head)
-    s.tasks.forEach((t, i) => {
+    for (const t of s.tasks) {
       const row = el('div', `task ${t.status}`)
       row.append(el('span', 'icon', ICON[t.status] || '?'))
-      row.append(el('span', 'num', `${i + 1}.`))
+      row.append(el('span', 'num', `${t.id}.`))
       row.append(el('span', 'subject', t.subject))
       box.append(row)
-    })
+    }
     body.append(box)
   }
   schedule()

@@ -11,7 +11,7 @@ from rich.live import Live
 from rich.panel import Panel
 from rich.text import Text
 
-from taskboard.store import SESSIONS, all_sessions
+from taskboard.store import all_sessions
 
 STATUS_ICON = {
     "pending": ("○", "white"),
@@ -37,19 +37,25 @@ def _age(iso: str) -> str:
 
 def render_session(s: dict) -> Panel:
     title = Text()
+    if s.get("busy"):
+        title.append("● ", style="bold yellow")
     title.append(s.get("project") or "?", style="bold cyan")
     if s.get("branch"):
         title.append(f"  ({s['branch']})", style="dim")
+    if s.get("kind") == "bg":
+        title.append("  bg", style="dim magenta")
+    if s.get("name"):
+        title.append(f"  {s['name']}", style="dim italic")
     title.append(f"  ·  {_age(s.get('updated_at', ''))}", style="dim")
     if s.get("status") == "closed":
         title.append("  ·  encerrada", style="dim red")
 
     lines = []
     done = sum(1 for t in s["tasks"] if t["status"] == "completed")
-    for i, t in enumerate(s["tasks"], 1):
+    for t in s["tasks"]:
         icon, style = STATUS_ICON.get(t["status"], ("?", "white"))
         line = Text()
-        line.append(f" {icon} {i}. ", style=style)
+        line.append(f" {icon} {t['id']}. ", style=style)
         if t["status"] == "completed":
             line.append(t["subject"], style="dim strike")
         elif t["status"] == "in_progress":
@@ -65,8 +71,8 @@ def render_session(s: dict) -> Panel:
 
 
 def render(show_all: bool) -> Group:
-    sessions = all_sessions()
-    visible = [s for s in sessions if s["tasks"] and (show_all or s.get("status") == "open")]
+    sessions = all_sessions(include_dead=show_all)
+    visible = [s for s in sessions if s["tasks"]]
     visible.sort(key=lambda s: s.get("updated_at", ""), reverse=True)
     idle = sum(1 for s in sessions if s.get("status") == "open" and not s["tasks"])
     parts: list = [render_session(s) for s in visible]
@@ -81,7 +87,7 @@ def render(show_all: bool) -> Group:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Painel de tasks das sessões do Claude Code")
-    ap.add_argument("--all", action="store_true", help="inclui sessões encerradas")
+    ap.add_argument("--all", action="store_true", help="inclui sessões já encerradas que deixaram tasks")
     ap.add_argument("--once", action="store_true", help="renderiza uma vez e sai")
     ap.add_argument("--interval", type=float, default=1.0, help="segundos entre atualizações")
     args = ap.parse_args()
@@ -90,7 +96,6 @@ def main() -> None:
     if args.once:
         console.print(render(args.all))
         return
-    SESSIONS.mkdir(parents=True, exist_ok=True)
     with Live(render(args.all), console=console, screen=True, refresh_per_second=4) as live:
         try:
             while True:

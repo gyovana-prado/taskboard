@@ -87,6 +87,9 @@ body {
 .session-head .project { font-weight: 600; color: #8fd3ff; }
 .session-head .branch, .session-head .age, .session-head .closed { color: var(--dim); font-size: 12px; }
 .session-head .closed { color: var(--closed); }
+.session-head .busy { color: var(--accent); font-size: 9px; }
+.session-head .kind { color: #c48fff; font-size: 11px; border: 1px solid rgba(196,143,255,0.4); border-radius: 4px; padding: 0 4px; }
+.session-head .name { color: var(--dim); font-size: 12px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .session-head .spacer { flex: 1; }
 .session-head .count { color: var(--dim); font-size: 12px; font-variant-numeric: tabular-nums; }
 .task {
