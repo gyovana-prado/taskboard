@@ -30,6 +30,15 @@ Duas formas de ver, lendo os mesmos JSONs:
 
 **App flutuante** (`/Applications/Taskboard.app`): janela sem moldura, sempre por cima, visível em todos os desktops. Arrasta pelo cabeçalho. `▾` recolhe pra uma linha só com o resumo (duplo clique no cabeçalho faz o mesmo), `◷` mostra também sessões já encerradas que deixaram tasks, `×` fecha. Clique no nome de uma sessão recolhe só ela (fica o contador e a task em andamento). A janela cresce até 520px e a partir daí o corpo rola. Posição, modo e sessões recolhidas ficam salvos.
 
+Edição manual, escrevendo nos mesmos arquivos que o Claude Code lê a cada `TaskList`:
+
+- Clique no ícone da task muda o status: pendente → em andamento → concluída → pendente.
+- Duplo clique no título edita. Enter salva, Esc cancela.
+- `×` (aparece ao passar o mouse) exclui, com um segundo clique de confirmação em 2,5s.
+- `+` no cabeçalho da sessão cria uma task nova. O id continua a numeração do `.highwatermark`, então não colide com o que o Claude criar depois.
+
+O Claude só percebe a mudança quando consultar a lista de novo (ele faz isso antes de começar cada task). Quando todas as tasks de uma sessão ficam concluídas, o próprio Claude Code apaga a lista e a sessão some do painel. O painel de terminal continua só leitura.
+
 O `.app` sai com assinatura ad-hoc (`codesign --sign -`), suficiente pra rodar neste Mac. Pra distribuir em outro Mac sem aviso do Gatekeeper precisaria de Developer ID e notarização, que exigem conta Apple Developer. Rebuild com `app/install.sh`; pra desenvolver, `cd app && npm start`.
 
 **Terminal** (`taskboard`):

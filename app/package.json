@@ -17,7 +17,7 @@
     "appId": "dev.gyo.taskboard",
     "productName": "Taskboard",
     "directories": { "output": "dist" },
-    "files": ["main.js", "preload.js", "renderer/**"],
+    "files": ["main.js", "preload.js", "store.js", "renderer/**"],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": "dir",

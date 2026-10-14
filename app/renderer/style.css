@@ -98,7 +98,37 @@ body {
   padding: 2px 0 2px 4px;
   line-height: 1.35;
 }
-.task .icon { width: 14px; flex: none; text-align: center; }
+.task .icon {
+  width: 16px; flex: none; text-align: center;
+  background: transparent; border: 0; padding: 0; margin: 0;
+  color: inherit; font: inherit; cursor: pointer; border-radius: 4px;
+}
+.task .icon:hover { background: rgba(255, 255, 255, 0.12); }
+.task .del {
+  flex: none; background: transparent; border: 0; color: var(--dim);
+  font: inherit; font-size: 12px; cursor: pointer; border-radius: 4px; padding: 0 4px;
+  opacity: 0; transition: opacity 0.1s;
+}
+.task:hover .del, .task .del.confirm { opacity: 1; }
+.task .del:hover { color: var(--fg); background: rgba(255, 255, 255, 0.08); }
+.task .del.confirm { color: var(--closed); font-weight: 600; }
+.task .subject.editing {
+  outline: 1px solid var(--accent); border-radius: 4px; padding: 0 3px;
+  text-decoration: none; color: var(--fg); font-weight: normal; user-select: text;
+}
+.task.adding .icon { color: var(--dim); cursor: default; }
+.new-task {
+  flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line);
+  border-radius: 6px; color: var(--fg); font: inherit; padding: 2px 6px; outline: none;
+}
+.new-task:focus { border-color: var(--accent); }
+.session-head .mini {
+  -webkit-app-region: no-drag; flex: none; background: transparent; border: 0;
+  color: var(--dim); font: inherit; font-size: 14px; line-height: 1; width: 18px; height: 18px;
+  border-radius: 4px; cursor: pointer; opacity: 0;
+}
+.session-head:hover .mini { opacity: 1; }
+.session-head .mini:hover { background: rgba(255, 255, 255, 0.1); color: var(--fg); }
 .task .num { color: var(--dim); flex: none; font-variant-numeric: tabular-nums; }
 .task .subject { flex: 1; word-break: break-word; }
 .task.pending .icon { color: var(--dim); }

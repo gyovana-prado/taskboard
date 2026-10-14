@@ -1,4 +1,8 @@
 const ICON = { pending: '○', in_progress: '◐', completed: '●' }
+const NEXT_STATUS = { pending: 'in_progress', in_progress: 'completed', completed: 'pending' }
+let editing = null // { sessionId, id } enquanto um título está em edição; segura o re-render
+let adding = null // sessionId com a linha de nova task aberta
+let pendingDelete = null // { sessionId, id, until }
 
 const card = document.getElementById('card')
 const body = document.getElementById('body')
@@ -69,17 +73,83 @@ function render() {
     head.append(el('span', 'spacer'))
     const d = s.tasks.filter((t) => t.status === 'completed').length
     head.append(el('span', 'count', `${d}/${s.tasks.length}`))
+    const addBtn = el('button', 'mini', '+')
+    addBtn.title = 'Nova task nesta sessão'
+    addBtn.addEventListener('click', (ev) => { ev.stopPropagation(); adding = s.session_id; render() })
+    head.append(addBtn)
     box.append(head)
     for (const t of s.tasks) {
       const row = el('div', `task ${t.status}`)
-      row.append(el('span', 'icon', ICON[t.status] || '?'))
+      const icon = el('button', 'icon', ICON[t.status] || '?')
+      icon.title = 'Clique: muda o status (pendente → em andamento → concluída)'
+      icon.addEventListener('click', () => window.taskboard.taskSet(s.session_id, t.id, { status: NEXT_STATUS[t.status] || 'pending' }))
+      row.append(icon)
       row.append(el('span', 'num', `${t.id}.`))
-      row.append(el('span', 'subject', t.subject))
+      const subject = el('span', 'subject', t.subject)
+      subject.title = 'Duplo clique: editar o título'
+      subject.addEventListener('dblclick', () => startEdit(subject, s.session_id, t.id, t.subject))
+      row.append(subject)
+      const isPending = pendingDelete && pendingDelete.sessionId === s.session_id && pendingDelete.id === t.id && Date.now() < pendingDelete.until
+      const del = el('button', `del${isPending ? ' confirm' : ''}`, isPending ? 'excluir?' : '×')
+      del.title = isPending ? 'Clique de novo pra excluir' : 'Excluir task'
+      del.addEventListener('click', () => {
+        if (isPending) {
+          pendingDelete = null
+          window.taskboard.taskSet(s.session_id, t.id, { status: 'deleted' })
+        } else {
+          pendingDelete = { sessionId: s.session_id, id: t.id, until: Date.now() + 2500 }
+          render()
+          setTimeout(() => { if (pendingDelete && Date.now() >= pendingDelete.until) { pendingDelete = null; render() } }, 2600)
+        }
+      })
+      row.append(del)
       box.append(row)
+    }
+    if (adding === s.session_id) {
+      const row = el('div', 'task adding')
+      row.append(el('span', 'icon', '○'))
+      const input = el('input', 'new-task')
+      input.placeholder = 'Nova task… (Enter salva, Esc cancela)'
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' && input.value.trim()) {
+          window.taskboard.taskAdd(s.session_id, input.value)
+          adding = null
+        } else if (ev.key === 'Escape') {
+          adding = null
+          render()
+        }
+      })
+      row.append(input)
+      box.append(row)
+      requestAnimationFrame(() => input.focus())
     }
     body.append(box)
   }
   schedule()
+}
+
+function startEdit(span, sessionId, id, original) {
+  editing = { sessionId, id }
+  span.contentEditable = 'plaintext-only'
+  span.classList.add('editing')
+  span.focus()
+  const range = document.createRange()
+  range.selectNodeContents(span)
+  getSelection().removeAllRanges()
+  getSelection().addRange(range)
+  const finish = (save) => {
+    span.contentEditable = 'false'
+    span.classList.remove('editing')
+    editing = null
+    const text = span.textContent.trim()
+    if (save && text && text !== original) window.taskboard.taskSet(sessionId, id, { subject: text })
+    else render()
+  }
+  span.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') { ev.preventDefault(); finish(true) }
+    if (ev.key === 'Escape') { ev.preventDefault(); finish(false) }
+  })
+  span.addEventListener('blur', () => finish(true), { once: true })
 }
 
 function toggleSession(id) {
@@ -109,7 +179,8 @@ document.getElementById('header').addEventListener('dblclick', () => btnMode.cli
 
 window.taskboard.onUpdate((data) => {
   current = data
+  if (editing) return // o próximo update redesenha
   render()
 })
 // idade das sessões muda mesmo sem evento novo
-setInterval(render, 30000)
+setInterval(() => { if (!editing && !adding) render() }, 30000)
