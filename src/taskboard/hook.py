@@ -37,13 +37,14 @@ def get_or_create(payload: dict) -> dict:
     if cwd and not s.get("cwd"):
         s["cwd"] = cwd
         s["project"] = Path(cwd).name
+    # rótulo informativo: a sessão pode trocar de branch no meio; as tasks seguem a sessão
+    s["branch"] = git_branch(cwd) or s.get("branch")
     return s
 
 
 def on_session_start(payload: dict) -> None:
     s = get_or_create(payload)
     s["status"] = "open"
-    s["branch"] = git_branch(payload.get("cwd")) or s.get("branch")
     save_session(s)
 
 
