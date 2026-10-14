@@ -1,0 +1,36 @@
+{
+  "name": "taskboard-app",
+  "productName": "Taskboard",
+  "version": "0.1.0",
+  "description": "Painel flutuante com as tasks das sess\u00f5es abertas do Claude Code",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --mac dir",
+    "icon": "bash build-icon.sh"
+  },
+  "devDependencies": {
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "dev.gyo.taskboard",
+    "productName": "Taskboard",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "store.js",
+      "renderer/**"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": "dir",
+      "identity": null,
+      "icon": "build/icon.icns"
+    }
+  }
+}
